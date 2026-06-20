@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 320">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#666"/>
+    </marker>
+    <style>
+      .title { font: bold 18px sans-serif; fill: #333; }
+      .subtitle { font: 12px sans-serif; fill: #666; }
+      .box-label { font: bold 13px sans-serif; fill: #fff; }
+      .box-detail { font: 11px sans-serif; fill: #fff; opacity: 0.9; }
+      .arrow-label { font: 10px sans-serif; fill: #666; }
+      .layer-label { font: bold 11px sans-serif; fill: #888; }
+    </style>
+  </defs>
+
+  <!-- Title -->
+  <text x="450" y="30" text-anchor="middle" class="title">RMBS Data Pipeline: Multi-Format Harmonisation</text>
+  <text x="450" y="50" text-anchor="middle" class="subtitle">5 issuer formats conforming to one canonical star schema</text>
+
+  <!-- Layer labels -->
+  <text x="100" y="85" text-anchor="middle" class="layer-label">SOURCE</text>
+  <text x="280" y="85" text-anchor="middle" class="layer-label">STAGING</text>
+  <text x="500" y="85" text-anchor="middle" class="layer-label">CONFORM</text>
+  <text x="720" y="85" text-anchor="middle" class="layer-label">MARTS</text>
+
+  <!-- Source boxes (issuer tapes) -->
+  <rect x="30" y="100" width="140" height="40" rx="5" fill="#6366f1"/>
+  <text x="100" y="118" text-anchor="middle" class="box-label">Avon</text>
+  <text x="100" y="132" text-anchor="middle" class="box-detail">.xlsx (AR codes)</text>
+
+  <rect x="30" y="150" width="140" height="40" rx="5" fill="#6366f1"/>
+  <text x="100" y="168" text-anchor="middle" class="box-label">Bletchley</text>
+  <text x="100" y="182" text-anchor="middle" class="box-detail">.xlsx (AR codes)</text>
+
+  <rect x="30" y="200" width="140" height="40" rx="5" fill="#6366f1"/>
+  <text x="100" y="218" text-anchor="middle" class="box-label">Canterbury</text>
+  <text x="100" y="232" text-anchor="middle" class="box-detail">.xlsx (AR codes)</text>
+
+  <rect x="30" y="250" width="140" height="40" rx="5" fill="#6366f1" opacity="0.5"/>
+  <text x="100" y="273" text-anchor="middle" class="box-detail">+ 2 more deals...</text>
+
+  <!-- Arrow: Source to Staging -->
+  <line x1="175" y1="170" x2="205" y2="170" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="190" y="160" text-anchor="middle" class="arrow-label">Python</text>
+
+  <!-- Staging boxes -->
+  <rect x="210" y="110" width="140" height="50" rx="5" fill="#f59e0b"/>
+  <text x="280" y="132" text-anchor="middle" class="box-label">loans_avon</text>
+  <text x="280" y="148" text-anchor="middle" class="box-detail">raw AR columns</text>
+
+  <rect x="210" y="170" width="140" height="50" rx="5" fill="#f59e0b"/>
+  <text x="280" y="192" text-anchor="middle" class="box-label">loans_bletchley</text>
+  <text x="280" y="208" text-anchor="middle" class="box-detail">raw AR columns</text>
+
+  <rect x="210" y="230" width="140" height="50" rx="5" fill="#f59e0b" opacity="0.5"/>
+  <text x="280" y="260" text-anchor="middle" class="box-detail">+ more...</text>
+
+  <!-- Arrow: Staging to Conform -->
+  <line x1="355" y1="170" x2="385" y2="170" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="370" y="160" text-anchor="middle" class="arrow-label">SQL</text>
+
+  <!-- Conform views -->
+  <rect x="390" y="100" width="180" height="55" rx="5" fill="#10b981"/>
+  <text x="480" y="122" text-anchor="middle" class="box-label">conform_avon_dim_loan</text>
+  <text x="480" y="138" text-anchor="middle" class="box-detail">decode + normalise + rename</text>
+  <text x="480" y="150" text-anchor="middle" class="box-detail">AR21 → EmploymentStatus</text>
+
+  <rect x="390" y="165" width="180" height="55" rx="5" fill="#10b981"/>
+  <text x="480" y="187" text-anchor="middle" class="box-label">conform_avon_fact_loan_period</text>
+  <text x="480" y="203" text-anchor="middle" class="box-detail">AR67 → CurrentBalance</text>
+  <text x="480" y="215" text-anchor="middle" class="box-detail">AR166 → AccountStatus</text>
+
+  <rect x="390" y="230" width="180" height="40" rx="5" fill="#10b981" opacity="0.5"/>
+  <text x="480" y="255" text-anchor="middle" class="box-detail">+ more conform views...</text>
+
+  <!-- Arrow: Conform to Marts -->
+  <line x1="575" y1="170" x2="605" y2="170" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="590" y="160" text-anchor="middle" class="arrow-label">UNION</text>
+
+  <!-- Marts (final star schema) -->
+  <rect x="610" y="110" width="160" height="50" rx="5" fill="#ef4444"/>
+  <text x="690" y="130" text-anchor="middle" class="box-label">dim_loan</text>
+  <text x="690" y="146" text-anchor="middle" class="box-detail">static attributes</text>
+
+  <rect x="610" y="170" width="160" height="50" rx="5" fill="#ef4444"/>
+  <text x="690" y="190" text-anchor="middle" class="box-label">fact_loan_period</text>
+  <text x="690" y="206" text-anchor="middle" class="box-detail">monthly snapshots</text>
+
+  <rect x="610" y="230" width="160" height="40" rx="5" fill="#ef4444"/>
+  <text x="690" y="250" text-anchor="middle" class="box-label">ref_* tables</text>
+  <text x="690" y="264" text-anchor="middle" class="box-detail">18 code lookups</text>
+
+  <!-- Arrow to consumers -->
+  <line x1="775" y1="170" x2="805" y2="170" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Consumer -->
+  <rect x="810" y="135" width="80" height="70" rx="5" fill="#8b5cf6"/>
+  <text x="850" y="165" text-anchor="middle" class="box-label">Power BI</text>
+  <text x="850" y="180" text-anchor="middle" class="box-detail">RWA</text>
+  <text x="850" y="193" text-anchor="middle" class="box-detail">Analytics</text>
+
+  <!-- Footer note -->
+  <text x="450" y="310" text-anchor="middle" class="subtitle">ELT pattern: Extract lightly in Python, Load to BigQuery staging, Transform in SQL to canonical marts</text>
+</svg>

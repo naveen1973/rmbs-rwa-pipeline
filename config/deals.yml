@@ -1,0 +1,43 @@
+# Deal registry — the pipeline loops over these.
+# Drop a deal's EDW loan-level tape + investor report into its folder, set status: active.
+
+# Absolute root of the deal data (kept in OneDrive; NOT affected by the
+# "RMBS dashbaord" -> "RMBS dashboard" rename since Issuers sits beside it).
+data_root: 'C:\Users\Naveen\OneDrive - Learn Data Insights\Desktop\DATA\Projects\RMBS Dashboard\Issuers'
+
+deals:
+  - id: AVON2
+    name: Avon Finance No.2 PLC
+    folder: Avon Finance No 2 Plc
+    asset_class: UK RMBS (non-conforming)
+    status: active
+    tape_pattern: "*Data_Tape*.xlsx"
+    ir_pattern: "*IR*.pdf"
+  - id: BLETCHLEY
+    name: Bletchley Park Funding 2024-1 PLC
+    folder: Bletchley Park Funding 2024-1 PLC 1
+    asset_class: UK RMBS
+    status: active
+    tape_pattern: "*boe*.xlsx"
+    ir_pattern: "*IR*.pdf"
+  - id: CANTERBURY
+    name: Canterbury Finance No 3
+    folder: Canterbury Finance No 3
+    asset_class: UK RMBS
+    status: active
+    tape_pattern: "*Data_Tape*.xlsx"
+    ir_pattern: "*IR*.pdf"
+  - id: HADRIAN
+    name: Hadrian Funding 2025-1 PLC
+    folder: Hadrian Funding 2025-1 PLC
+    asset_class: UK RMBS
+    status: active
+    tape_pattern: "*Data_Tape*.xlsx"
+    ir_pattern: "*IR*.pdf"
+  - id: STRATTON2021_1
+    name: Stratton Mortgage Funding 2021-1 PLC
+    folder: Stratton Mortgage Funding 2021-1 Plc 1
+    asset_class: UK RMBS
+    status: active
+    tape_pattern: "*Data_Tape*.xlsx"
+    ir_pattern: "*IR*.pdf"

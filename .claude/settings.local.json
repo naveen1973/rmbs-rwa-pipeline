@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"from src.ingest.deals import resolve_deal; d,p = resolve_deal\\('AVON2'\\); print\\('OK:', d['name']\\); print\\('tape:', p.name\\)\")",
+      "Bash(python -m pip install --quiet duckdb)",
+      "Bash(python -c \"import duckdb; print\\('duckdb', duckdb.__version__, 'ok'\\)\")",
+      "Bash(python -)",
+      "Bash(gcloud --version)",
+      "Bash(bq version *)",
+      "Bash(gcloud auth *)",
+      "Bash(gcloud config *)",
+      "Bash(env)",
+      "Bash(gcloud info *)",
+      "Bash(ls \"$\\(gcloud info --format='value\\(installation.sdk_root\\)' \\)/lib/third_party/certifi/cacert.pem\")",
+      "Bash(openssl s_client -connect bigquery.googleapis.com:443 -servername bigquery.googleapis.com)",
+      "Bash(openssl x509 *)",
+      "Bash(bq query *)",
+      "Bash(code \"c:\\\\Users\\\\Naveen\\\\Documents\\\\rmbs-rwa-pipeline\\\\sql\\\\marts\\\\ref_postcode_to_region.sql\")",
+      "Read(//c/Users/Naveen/OneDrive - Learn Data Insights/Desktop/DATA/Projects/RMBS Dashboard/Issuers/**)",
+      "PowerShell(Get-Command bq)",
+      "Bash(gh --version)",
+      "Bash(gh auth *)",
+      "Bash(git add *)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\Naveen\\.claude\\projects\\c--Users-Naveen-Documents-rmbs-rwa-pipeline\\memory"
+    ]
+  }
+}

@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 760" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="one" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto">
+      <path d="M7,2 L7,12" stroke="#444" stroke-width="1.4"/>
+    </marker>
+    <marker id="many" markerWidth="16" markerHeight="16" refX="2" refY="7" orient="auto">
+      <path d="M12,2 L2,7 L12,12" fill="none" stroke="#444" stroke-width="1.4"/>
+    </marker>
+    <style>
+      .tbl  { fill:#f6f8fc; stroke:#9bb0d0; stroke-width:1.2; }
+      .hf   { fill:#2f6cf6; }   .hd { fill:#2e8b57; }   .hr { fill:#b07d2b; }   .hk { fill:#5a6571; }
+      .ht   { fill:#fff; font-size:12.5px; font-weight:bold; }
+      .hs   { fill:#dde7ff; font-size:9px; }
+      .row  { fill:#243; font-size:10.5px; }
+      .key  { fill:#11203a; font-size:10.5px; font-weight:bold; }
+      .ref  { fill:#7a5212; font-size:10.5px; }
+      .rel  { stroke:#444; stroke-width:1.3; fill:none; }
+      .rl   { fill:#444; font-size:9.5px; }
+      .note { fill:#667; font-size:9px; font-style:italic; }
+      .title{ fill:#1f3a8a; font-size:15px; font-weight:bold; }
+    </style>
+  </defs>
+
+  <text class="title" x="20" y="26">Canonical schema — star (dim_loan + fact_loan_period)</text>
+
+  <!-- ===== dim_deal (top) ===== -->
+  <rect class="tbl" x="370" y="48" width="210" height="132" rx="3"/>
+  <rect class="hd" x="370" y="48" width="210" height="22" rx="3"/>
+  <text class="ht" x="380" y="63">dim_deal</text>
+  <text class="key" x="380" y="88">PK  DealID</text>
+  <text class="row" x="380" y="105">DealName</text>
+  <text class="row" x="380" y="122">Programme</text>
+  <text class="row" x="380" y="139">AssetClass</text>
+  <text class="row" x="380" y="156">Originator · Status</text>
+
+  <!-- ===== dim_loan (left) ===== -->
+  <rect class="tbl" x="24" y="232" width="276" height="338" rx="3"/>
+  <rect class="hd" x="24" y="232" width="276" height="34" rx="3"/>
+  <text class="ht" x="34" y="249">dim_loan</text>
+  <text class="hs" x="34" y="261">static · 1 row per (DealID, LoanID)</text>
+  <text class="key" x="34" y="284">PK  DealID, LoanID</text>
+  <text class="row" x="34" y="301">BorrowerID · PropertyID</text>
+  <text class="row" x="34" y="318">OriginalBalance · LoanTerm</text>
+  <text class="row" x="34" y="335">LoanOriginationDate</text>
+  <text class="ref" x="34" y="352">Purpose ⟶ ref</text>
+  <text class="ref" x="34" y="369">RepaymentMethod ⟶ ref</text>
+  <text class="ref" x="34" y="386">OccupancyType ⟶ ref</text>
+  <text class="ref" x="34" y="403">PropertyType ⟶ ref</text>
+  <text class="ref" x="34" y="420">GeographicRegion ⟶ ref</text>
+  <text class="row" x="34" y="437">OriginalLTV · OriginalValuation</text>
+  <text class="row" x="34" y="454">BorrowerCreditQuality</text>
+  <text class="row" x="34" y="471">IncomeVerification ⟶ ref</text>
+  <text class="row" x="34" y="488">EmploymentStatus ⟶ ref</text>
+  <text class="row" x="34" y="505">Rental · #BTLProps · DSCR (BTL)</text>
+  <text class="note" x="34" y="525">… ~37 static fields total</text>
+
+  <!-- ===== fact_loan_period (centre) ===== -->
+  <rect class="tbl" x="360" y="232" width="262" height="356" rx="3"/>
+  <rect class="hf" x="360" y="232" width="262" height="34" rx="3"/>
+  <text class="ht" x="372" y="249">fact_loan_period</text>
+  <text class="hs" x="372" y="261">dynamic · 1 row per (DealID, LoanID, CutoffDate)</text>
+  <text class="key" x="372" y="284">FK  DealID, LoanID</text>
+  <text class="key" x="372" y="301">FK  CutoffDate</text>
+  <text class="row" x="372" y="318">CurrentBalance</text>
+  <text class="row" x="372" y="335">CurrentLTV · CurrentValuation</text>
+  <text class="row" x="372" y="352">CurrentInterestRate · Margin</text>
+  <text class="row" x="372" y="369">PaymentDue</text>
+  <text class="ref" x="372" y="386">AccountStatus ⟶ ref</text>
+  <text class="row" x="372" y="403">ArrearsBalance · MonthsInArrears</text>
+  <text class="row" x="372" y="420">Arrears1MonthAgo · 2MonthsAgo</text>
+  <text class="ref" x="372" y="437">ForbearanceType ⟶ ref</text>
+  <text class="row" x="372" y="454">PrepaymentAmount · Cumulative</text>
+  <text class="row" x="372" y="471">DefaultAmount · DateOfDefault</text>
+  <text class="row" x="372" y="488">SalePrice · LossOnSale</text>
+  <text class="row" x="372" y="505">CumulativeRecoveries</text>
+  <text class="ref" x="372" y="522">CurrentEPC ⟶ ref</text>
+  <text class="row" x="372" y="539">RedemptionDate · Litigation</text>
+  <text class="note" x="372" y="559">… ~33 dynamic fields total</text>
+
+  <!-- ===== dim_date (right) ===== -->
+  <rect class="tbl" x="688" y="232" width="210" height="150" rx="3"/>
+  <rect class="hd" x="688" y="232" width="210" height="22" rx="3"/>
+  <text class="ht" x="698" y="247">dim_date</text>
+  <text class="key" x="698" y="272">PK  CutoffDate</text>
+  <text class="row" x="698" y="289">Year · Quarter</text>
+  <text class="row" x="698" y="306">Month · MonthName</text>
+  <text class="row" x="698" y="323">Period (YYYY-MM)</text>
+  <text class="note" x="698" y="345">monthly cut-offs</text>
+
+  <!-- ===== ref_* (bottom) ===== -->
+  <rect class="tbl" x="360" y="636" width="320" height="104" rx="3"/>
+  <rect class="hr" x="360" y="636" width="320" height="22" rx="3"/>
+  <text class="ht" x="372" y="651">ref_* code lists  (17 ·  code ⟶ label)</text>
+  <text class="ref" x="372" y="675">ref_occupancy · ref_property_type · ref_purpose</text>
+  <text class="ref" x="372" y="691">ref_account_status · ref_forbearance · ref_region</text>
+  <text class="ref" x="372" y="707">ref_repayment_method · ref_rate_index · ref_epc</text>
+  <text class="ref" x="372" y="723">ref_employment_status · ref_income_verification · …</text>
+
+  <!-- ===== relationships ===== -->
+  <!-- dim_deal 1 - * fact -->
+  <path class="rel" d="M478,180 L482,232" marker-start="url(#one)" marker-end="url(#many)"/>
+  <text class="rl" x="486" y="208">1 ─ *  DealID</text>
+  <!-- dim_loan 1 - * fact -->
+  <path class="rel" d="M300,400 L360,400" marker-start="url(#one)" marker-end="url(#many)"/>
+  <text class="rl" x="300" y="392">1 ─ *  (DealID, LoanID)</text>
+  <!-- dim_date 1 - * fact -->
+  <path class="rel" d="M688,320 L622,330" marker-start="url(#one)" marker-end="url(#many)"/>
+  <text class="rl" x="626" y="316">1 ─ *  CutoffDate</text>
+  <!-- ref - fact -->
+  <path class="rel" d="M495,636 L493,588" marker-start="url(#one)" marker-end="url(#many)"/>
+  <!-- ref - dim_loan (dashed) -->
+  <path class="rel" stroke-dasharray="4 3" d="M360,672 L180,570" marker-end="url(#many)"/>
+  <text class="rl" x="250" y="612">code ⟶ label (List fields)</text>
+
+  <text class="note" x="24" y="600">Bands, flags, seasoning, loss severity &amp; pool metrics are derived later (Step 4b) — not stored in canonical.</text>
+</svg>

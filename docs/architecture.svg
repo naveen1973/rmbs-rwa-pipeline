@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 530" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#2f6cf6"/>
+    </marker>
+    <style>
+      .box   { fill:#2f6cf6; rx:5; }
+      .opt   { fill:#9bb6f3; }
+      .grp   { fill:none; stroke:#2f6cf6; stroke-width:1.5; stroke-dasharray:6 4; }
+      .outer { fill:none; stroke:#2f6cf6; stroke-width:2; }
+      .bt    { fill:#ffffff; font-size:12px; text-anchor:middle; }
+      .bts   { fill:#ffffff; font-size:10px; text-anchor:middle; }
+      .lbl   { fill:#1f3a8a; font-size:13px; font-weight:bold; }
+      .glbl  { fill:#3b4a6b; font-size:11px; font-weight:bold; }
+      .flow  { stroke:#2f6cf6; stroke-width:2; fill:none; }
+      .num   { fill:#f5a623; }
+      .numt  { fill:#ffffff; font-size:11px; font-weight:bold; text-anchor:middle; }
+    </style>
+  </defs>
+
+  <!-- ===================== ON-PREM ===================== -->
+  <text class="lbl" x="14" y="60">On-prem · Data Sources</text>
+  <rect class="outer" x="8" y="70" width="218" height="330" rx="6"/>
+
+  <rect class="box" x="28" y="150" width="86" height="46" rx="5"/>
+  <text class="bts" x="71" y="170">Issuer LLD</text>
+  <text class="bts" x="71" y="184">Tapes (.xlsx)</text>
+
+  <rect class="box" x="28" y="258" width="86" height="46" rx="5"/>
+  <text class="bts" x="71" y="278">Investor</text>
+  <text class="bts" x="71" y="292">Reports (.pdf)</text>
+
+  <rect class="box" x="142" y="160" width="68" height="144" rx="5"/>
+  <text class="bts" x="176" y="216">Data</text>
+  <text class="bts" x="176" y="230">Pre-</text>
+  <text class="bts" x="176" y="244">processing</text>
+  <text class="bts" x="176" y="262">(prep_rmbs)</text>
+  <circle class="num" cx="205" cy="166" r="11"/>
+  <text class="numt" x="205" y="170">1</text>
+
+  <path class="flow" d="M114,172 L142,205"/>
+  <path class="flow" d="M114,280 L142,262"/>
+
+  <!-- ============ transfer 2 ============ -->
+  <path class="flow" d="M210,232 L300,232" marker-end="url(#arrow)"/>
+  <circle class="num" cx="258" cy="232" r="11"/>
+  <text class="numt" x="258" y="236">2</text>
+  <text class="glbl" x="255" y="218" text-anchor="middle">load_bigquery.py</text>
+  <text class="glbl" x="255" y="256" text-anchor="middle">(high-speed load)</text>
+
+  <!-- ===================== CLOUD ===================== -->
+  <rect class="outer" x="300" y="30" width="492" height="470" rx="6"/>
+  <text class="lbl" x="312" y="52">Google Cloud</text>
+
+  <!-- Data Consumers (6) -->
+  <text class="glbl" x="326" y="76">6 · Data Consumers</text>
+  <rect class="grp" x="318" y="82" width="462" height="64" rx="4"/>
+  <rect class="box" x="330" y="96" width="100" height="38" rx="5"/>
+  <text class="bts" x="380" y="119">Power BI</text>
+  <rect class="box" x="442" y="96" width="100" height="38" rx="5"/>
+  <text class="bts" x="492" y="119">HTML dashboard</text>
+  <rect class="box" x="554" y="96" width="100" height="38" rx="5"/>
+  <text class="bts" x="604" y="119">Reporting</text>
+  <rect class="box" x="666" y="96" width="100" height="38" rx="5"/>
+  <text class="bts" x="716" y="119">Commentary</text>
+
+  <!-- Data Storage -->
+  <text class="glbl" x="326" y="184">Data Storage</text>
+  <rect class="grp" x="318" y="190" width="462" height="78" rx="4"/>
+  <rect class="opt" x="345" y="206" width="150" height="48" rx="5"/>
+  <text class="bts" x="420" y="226">GCS landing</text>
+  <text class="bts" x="420" y="240">(optional)</text>
+  <rect class="box" x="545" y="206" width="200" height="48" rx="5"/>
+  <text class="bt" x="645" y="225">BigQuery warehouse</text>
+  <text class="bts" x="645" y="242">staging · marts</text>
+
+  <!-- Event stream / refresh -->
+  <rect class="box" x="545" y="300" width="200" height="40" rx="5"/>
+  <text class="bts" x="645" y="316">Scheduled refresh /</text>
+  <text class="bts" x="645" y="330">orchestration</text>
+
+  <!-- Data Processing -->
+  <text class="glbl" x="326" y="362">5 · Data Processing</text>
+  <rect class="grp" x="318" y="368" width="462" height="80" rx="4"/>
+  <rect class="box" x="345" y="384" width="180" height="50" rx="5"/>
+  <text class="bts" x="435" y="404">BigQuery SQL transforms</text>
+  <text class="bts" x="435" y="420">sql/  (staging → marts)</text>
+  <circle class="num" cx="515" cy="384" r="11"/>
+  <text class="numt" x="515" y="388">4</text>
+  <rect class="box" x="555" y="384" width="190" height="50" rx="5"/>
+  <text class="bts" x="650" y="404">SEC-ERBA RWA engine</text>
+  <text class="bts" x="650" y="420">src/rwa</text>
+  <circle class="num" cx="735" cy="384" r="11"/>
+  <text class="numt" x="735" y="388">5</text>
+
+  <!-- flows inside cloud -->
+  <!-- 2 -> warehouse -->
+  <path class="flow" d="M300,232 L545,230" marker-end="url(#arrow)"/>
+  <!-- 3 warehouse -> SQL transforms -->
+  <path class="flow" d="M600,254 L470,384" marker-end="url(#arrow)"/>
+  <circle class="num" cx="548" cy="316" r="11"/>
+  <text class="numt" x="548" y="320">3</text>
+  <!-- 4 SQL transforms -> refresh -->
+  <path class="flow" d="M525,400 L545,330" marker-end="url(#arrow)"/>
+  <!-- 5 RWA -> warehouse marts -->
+  <path class="flow" d="M650,384 L648,254" marker-end="url(#arrow)"/>
+  <!-- 6 warehouse -> consumers -->
+  <path class="flow" d="M645,206 L645,146" marker-end="url(#arrow)"/>
+  <circle class="num" cx="645" cy="176" r="11"/>
+  <text class="numt" x="645" y="180">6</text>
+
+  <!-- Cloud services bar -->
+  <rect x="318" y="460" width="462" height="28" rx="4" fill="#5a6571"/>
+  <text x="549" y="478" fill="#ffffff" font-size="11px" text-anchor="middle">Cloud services: IAM · KMS · Cloud Logging · validation/controls · data lineage</text>
+</svg>

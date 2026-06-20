@@ -1,0 +1,10 @@
+# Warehouse / cloud settings
+bigquery:
+  project_id: rmbs-rwa-pipeline        # BigQuery project
+  location: EU                         # keep UK/EU data in an EU region
+  datasets:
+    staging: rmbs_staging              # raw, lightly-typed loads
+    marts:   rmbs_marts                # curated facts + dimensions
+  gcs_landing_bucket: your-gcs-bucket  # optional raw landing (stage 2)
+# Auth: run `gcloud auth application-default login` (Application Default Credentials),
+# or set GOOGLE_APPLICATION_CREDENTIALS to a service-account key path (keep it in .env).

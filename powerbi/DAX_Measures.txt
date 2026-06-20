@@ -1,0 +1,311 @@
+/* =======================================================================
+   RMBS DASHBOARD - DAX MEASURES LIBRARY
+   Avon Finance No.2  |  Power BI
+   -----------------------------------------------------------------------
+   HOW TO USE
+   1. In Power BI, create a blank table to hold measures:
+        Home > Enter Data > name it "_Measures" > Load.
+   2. For each measure below, select the _Measures table, click
+        Modeling > New Measure, and paste the formula (the part after the
+        measure name and '=').
+   3. All balance-weighted averages use SUMX over the Loans table so they
+      respond to every slicer/filter (region, LTV band, IO, BTL, etc.).
+
+   TABLE NAMES expected: Loans, Exits, PoolHistory, DelinquencyHistory,
+   CapitalStructure, DateTable, Scenario_HPI, Scenario_CDR,
+   Scenario_Severity, Scenario_CPR.
+   ======================================================================= */
+
+
+/* ----------------------------------------------------------------------
+   1.  POOL OVERVIEW  (operate on Loans - current snapshot)
+   ---------------------------------------------------------------------- */
+
+Current Balance = SUM ( Loans[CurrentBalance] )
+
+Original Balance = SUM ( Loans[OrigBalance] )
+
+Loan Count = DISTINCTCOUNT ( Loans[LoanID] )
+
+Avg Loan Size = DIVIDE ( [Current Balance], [Loan Count] )
+
+Pool Factor = DIVIDE ( [Current Balance], [Original Balance] )
+
+WA Coupon =
+DIVIDE (
+    SUMX ( Loans, Loans[CurrentBalance] * Loans[CurrentRate] ),
+    [Current Balance]
+)
+
+WA Margin =
+DIVIDE (
+    SUMX ( Loans, Loans[CurrentBalance] * Loans[Margin] ),
+    [Current Balance]
+)
+
+WA Current LTV =
+DIVIDE (
+    SUMX ( Loans, Loans[CurrentBalance] * Loans[CurrentLTV_pct] ),
+    [Current Balance]
+)
+
+WA Original LTV =
+DIVIDE (
+    SUMX ( Loans, Loans[CurrentBalance] * Loans[OrigLTV_pct] ),
+    [Current Balance]
+)
+
+WA Seasoning (Months) =
+DIVIDE (
+    SUMX ( Loans, Loans[CurrentBalance] * Loans[SeasoningMonths] ),
+    [Current Balance]
+)
+
+WA Remaining Term (Months) =
+DIVIDE (
+    SUMX ( Loans, Loans[CurrentBalance] * Loans[RemainingTermMonths] ),
+    [Current Balance]
+)
+
+% Interest Only =
+DIVIDE (
+    CALCULATE ( [Current Balance], Loans[IsInterestOnly] = "Interest Only" ),
+    [Current Balance]
+)
+
+% Buy-to-Let =
+DIVIDE (
+    CALCULATE ( [Current Balance], Loans[IsBTL] = "Buy-to-Let" ),
+    [Current Balance]
+)
+
+
+/* ----------------------------------------------------------------------
+   2.  DELINQUENCY / CREDIT PERFORMANCE
+   ---------------------------------------------------------------------- */
+
+Arrears Balance = SUM ( Loans[ArrearsBalance] )
+
+Delinquent Balance (1m+) =
+CALCULATE ( [Current Balance], Loans[MonthsInArrears] >= 1 )
+
+% Delinquent (1m+) =
+DIVIDE ( [Delinquent Balance (1m+)], [Current Balance] )
+
+Serious Arrears Balance (3m+) =
+CALCULATE ( [Current Balance], Loans[MonthsInArrears] > 3 )
+
+% Serious Arrears (3m+) =
+DIVIDE ( [Serious Arrears Balance (3m+)], [Current Balance] )
+
+% in Default/Possession =
+DIVIDE (
+    CALCULATE ( [Current Balance],
+        Loans[AccountStatus] IN { "Default / Foreclosure", "Repossessed" } ),
+    [Current Balance]
+)
+
+/* 90+ DPD proxy (3+ months in arrears) - a key credit KPI */
+% 90+ DPD =
+DIVIDE (
+    CALCULATE ( [Current Balance], Loans[MonthsInArrears] >= 3 ),
+    [Current Balance]
+)
+
+/* Delinquency bucket % - use on the DelinquencyHistory table or Loans.
+   On Loans, with DelinquencyBucket on an axis: */
+Bucket % of Pool =
+DIVIDE (
+    [Current Balance],
+    CALCULATE ( [Current Balance], ALL ( Loans[DelinquencyBucket] ) )
+)
+
+
+/* ----------------------------------------------------------------------
+   3.  PREPAYMENT SPEEDS  (SMM / CPR / PSA)
+   -----------------------------------------------------------------------
+   Full CPR requires a balance roll-forward across two consecutive tapes.
+   PoolHistory already stores reported CPR (from the investor report) and
+   the period balances; these measures compute CPR from the stored speeds
+   and convert between SMM / CPR / PSA.
+   ---------------------------------------------------------------------- */
+
+/* Reported 1-month CPR for the selected period (from PoolHistory) */
+CPR 1M = AVERAGE ( PoolHistory[CPR_1m] )
+
+CPR 3M = AVERAGE ( PoolHistory[CPR_3m] )
+
+CPR 12M = AVERAGE ( PoolHistory[CPR_12m] )
+
+/* SMM implied by the 1-month CPR:  SMM = 1 - (1 - CPR)^(1/12) */
+SMM (from CPR) =
+VAR cpr = DIVIDE ( [CPR 1M], 100 )
+RETURN 1 - ( 1 - cpr ) ^ ( 1 / 12 )
+
+/* PSA equivalent of the current CPR (seasoned pool, CPR caps at 6% at 30mo).
+   PSA% = CPR / min(0.2*age, 6) * 100 , using WA seasoning as age. */
+PSA Equivalent =
+VAR age = [WA Seasoning (Months)]
+VAR rampCPR = MIN ( 0.2 * age, 6 )      -- 100% PSA benchmark CPR at this age
+RETURN DIVIDE ( [CPR 1M], rampCPR ) * 100
+
+/* Partial-prepayment SMM proxy from the current tape (overpayments only) */
+Partial Prepay SMM proxy =
+DIVIDE ( SUM ( Loans[PrepayAmountMonth] ), [Current Balance] ) * 100
+
+/* Roll-forward SMM once >=2 tapes are loaded into PoolHistory.
+   SMM = 1 - EndBal / (BeginBal - ScheduledPrincipal).  With balances only,
+   approximate scheduled principal as 0 for a conservative upper bound. */
+Roll-Forward CPR =
+VAR cur  = MAX ( PoolHistory[CutoffDate] )
+VAR curBal  = CALCULATE ( SUM ( PoolHistory[CurrentBalance] ), PoolHistory[CutoffDate] = cur )
+VAR prevDate = CALCULATE ( MAX ( PoolHistory[CutoffDate] ), PoolHistory[CutoffDate] < cur )
+VAR prevBal = CALCULATE ( SUM ( PoolHistory[CurrentBalance] ), PoolHistory[CutoffDate] = prevDate )
+VAR smm = DIVIDE ( prevBal - curBal, prevBal )
+RETURN ( 1 - ( 1 - smm ) ^ 12 ) * 100
+
+
+/* ----------------------------------------------------------------------
+   4.  DEFAULTS & LOSS SEVERITY
+   ---------------------------------------------------------------------- */
+
+Default Balance (period) = SUM ( Exits[DefaultBalance] )
+
+Loss on Sale (period) = SUM ( Exits[LossOnSale] )
+
+Recoveries (period) = SUM ( Exits[SalePrice] )
+
+Loss Severity =
+DIVIDE ( [Loss on Sale (period)], [Default Balance (period)] )
+
+Recovery Rate =
+DIVIDE ( [Recoveries (period)], [Default Balance (period)] )
+
+Defaults Count = CALCULATE ( COUNTROWS ( Exits ), Exits[IsDefault] = 1 )
+
+Redemptions Count = CALCULATE ( COUNTROWS ( Exits ), Exits[IsRedemption] = 1 )
+
+/* Reported CDR (from PoolHistory / investor report) */
+CDR 1M = AVERAGE ( PoolHistory[CDR_1m] )
+
+CDR Lifetime = AVERAGE ( PoolHistory[CDR_Lifetime] )
+
+/* Cumulative loss severity reported by the trustee */
+Cumulative Loss Severity = AVERAGE ( PoolHistory[CumLossSeverity] )
+
+
+/* ----------------------------------------------------------------------
+   5.  STRESS TESTING  (what-if parameters drive these)
+   -----------------------------------------------------------------------
+   Slicers from the disconnected tables feed these measures:
+     Scenario_HPI[HPI_Shock_pct]        -- house-price shock (e.g. -30)
+     Scenario_CDR[CDR_Multiplier]       -- multiple of base default rate
+     Scenario_Severity[Severity_Multiplier]
+     Scenario_CPR[CPR_Assumption_pct]
+   ---------------------------------------------------------------------- */
+
+HPI Shock = SELECTEDVALUE ( Scenario_HPI[HPI_Shock_pct], 0 )
+
+CDR Multiplier = SELECTEDVALUE ( Scenario_CDR[CDR_Multiplier], 1 )
+
+Severity Multiplier = SELECTEDVALUE ( Scenario_Severity[Severity_Multiplier], 1 )
+
+CPR Assumption = SELECTEDVALUE ( Scenario_CPR[CPR_Assumption_pct], 0 )
+
+/* Stressed current LTV after an HPI shock applied to current valuation.
+   New LTV = balance / (valuation * (1 + shock)).  Balance-weighted. */
+Stressed WA Current LTV =
+VAR shock = DIVIDE ( [HPI Shock], 100 )
+RETURN
+DIVIDE (
+    SUMX ( Loans,
+        Loans[CurrentBalance] *
+        DIVIDE ( Loans[CurrentBalance], Loans[CurrentValuation] * ( 1 + shock ) ) * 100 ),
+    [Current Balance]
+)
+
+/* Balance that becomes underwater (LTV>100%) under the HPI shock */
+Stressed Underwater Balance =
+VAR shock = DIVIDE ( [HPI Shock], 100 )
+RETURN
+SUMX (
+    Loans,
+    VAR newLTV = DIVIDE ( Loans[CurrentBalance], Loans[CurrentValuation] * ( 1 + shock ) )
+    RETURN IF ( newLTV > 1, Loans[CurrentBalance], 0 )
+)
+
+% Underwater (stressed) =
+DIVIDE ( [Stressed Underwater Balance], [Current Balance] )
+
+/* Base lifetime PD assumption by delinquency status (editable).
+   These are simple, transparent stress assumptions applied to the snapshot. */
+Base PD by Status =
+SUMX (
+    Loans,
+    Loans[CurrentBalance] *
+    SWITCH (
+        TRUE (),
+        Loans[MonthsInArrears] = 0, 0.02,     -- performing
+        Loans[MonthsInArrears] <= 1, 0.08,
+        Loans[MonthsInArrears] <= 3, 0.25,
+        Loans[MonthsInArrears] <= 6, 0.50,
+        0.85                                   -- 6m+ in arrears
+    )
+)
+
+/* Stressed expected loss:
+   EL = SUM ( balance * PD(status) * CDR_mult * severity(LTV) * sev_mult )
+   Severity floored at 10%, and rises as stressed LTV exceeds 100%. */
+Stressed Expected Loss =
+VAR shock   = DIVIDE ( [HPI Shock], 100 )
+VAR cdrMult = [CDR Multiplier]
+VAR sevMult = [Severity Multiplier]
+RETURN
+SUMX (
+    Loans,
+    VAR pd =
+        SWITCH ( TRUE (),
+            Loans[MonthsInArrears] = 0, 0.02,
+            Loans[MonthsInArrears] <= 1, 0.08,
+            Loans[MonthsInArrears] <= 3, 0.25,
+            Loans[MonthsInArrears] <= 6, 0.50,
+            0.85 )
+    VAR newLTV = DIVIDE ( Loans[CurrentBalance], Loans[CurrentValuation] * ( 1 + shock ) )
+    VAR baseSev = MAX ( 0.10, 1 - DIVIDE ( 1, newLTV ) )   -- loss given LTV>100%
+    VAR sev = MIN ( 1, baseSev * sevMult )
+    RETURN Loans[CurrentBalance] * MIN ( 1, pd * cdrMult ) * sev
+)
+
+Stressed Loss Rate =
+DIVIDE ( [Stressed Expected Loss], [Current Balance] )
+
+/* Note coverage: does the stressed loss exceed the junior note balances?
+   Junior + residual = Classes E, F, Z below.  Compare to credit support. */
+Credit Support Below Class A =
+CALCULATE (
+    SUM ( CapitalStructure[CurrentBalance] ),
+    CapitalStructure[Class] <> "Class A",
+    CapitalStructure[Subordination] <> "Risk Retention"
+)
+
+Loss vs Credit Support =
+DIVIDE ( [Stressed Expected Loss], [Credit Support Below Class A] )
+
+
+/* ----------------------------------------------------------------------
+   6.  TREND / TIME-SERIES (operate on PoolHistory & DelinquencyHistory)
+   ---------------------------------------------------------------------- */
+
+History Current Balance = SUM ( PoolHistory[CurrentBalance] )
+
+History WA Coupon = AVERAGE ( PoolHistory[WA_Coupon] )
+
+History WA Current LTV = AVERAGE ( PoolHistory[WA_CurrentLTV] )
+
+History % Delinquent = AVERAGE ( PoolHistory[Pct_Delinquent_1m_plus] )
+
+DQ Bucket Balance = SUM ( DelinquencyHistory[Balance] )
+
+DQ Bucket % = AVERAGE ( DelinquencyHistory[PctBalance] )
+
+/* ======================================================================= */

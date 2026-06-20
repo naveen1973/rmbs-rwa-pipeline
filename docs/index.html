@@ -1,0 +1,73 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RMBS RWA Pipeline</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+:root{--navy:#1f3864;--blue:#2e75b6;--blue2:#5b9bd5;--bg:#f4f6fa;--card:#fff;--ink:#1f2937;--mut:#5b6573;--line:#e5e9f0}
+*{box-sizing:border-box}body{margin:0;font-family:Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
+.hero{background:linear-gradient(115deg,var(--navy),var(--blue));color:#fff;padding:46px 24px}
+.wrap{max-width:980px;margin:0 auto;padding:0 24px}
+.hero h1{margin:0 0 8px;font-size:30px}.hero p{margin:0;font-size:16px;opacity:.92;max-width:680px}
+.cta{display:inline-block;margin-top:22px;background:#fff;color:var(--navy);font-weight:700;text-decoration:none;padding:12px 22px;border-radius:8px}
+.cta:hover{background:#eaf1fb}
+section{padding:30px 0}
+h2{color:var(--navy);font-size:20px;margin:0 0 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+.card h3{margin:0 0 6px;font-size:15px;color:var(--navy)}.card p{margin:0;font-size:13.5px;color:var(--mut)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;background:#fff;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line)}th{background:#eef3fb;color:var(--navy)}
+.mermaid{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px;overflow:auto}
+footer{padding:26px 0;color:var(--mut);font-size:12.5px;border-top:1px solid var(--line);margin-top:20px}
+.badge{display:inline-block;background:#eef3fb;color:var(--blue);border-radius:11px;padding:2px 10px;font-size:12px;font-weight:600;margin-right:6px}
+</style></head><body>
+<div class="hero"><div class="wrap">
+  <div style="margin-bottom:10px"><span class="badge">UK RMBS</span><span class="badge">Basel 3.1 RWA</span><span class="badge">BigQuery · Python · Power BI</span></div>
+  <h1>RMBS RWA Pipeline</h1>
+  <p>An end-to-end UK RMBS surveillance and securitisation regulatory-capital platform: ingest issuer
+  loan-level tapes and investor reports, build a cloud data warehouse, compute Basel 3.1 / UK CRR
+  securitisation RWA, and serve it to interactive dashboards.</p>
+  <a class="cta" href="RMBS_Dashboard_Preview.html">▶ View the live dashboard</a>
+</div></div>
+
+<div class="wrap">
+  <section>
+    <h2>What it does</h2>
+    <div class="grid">
+      <div class="card"><h3>Ingest</h3><p>Parses the European DataWarehouse AR-field loan-level tape (8,000+ loans), decodes coded fields, derives CPR/SMM/PSA, delinquency buckets, LTV and loss severity.</p></div>
+      <div class="card"><h3>Warehouse</h3><p>Loads curated facts and dimensions into a BigQuery warehouse (staging + marts), refreshed each month per deal.</p></div>
+      <div class="card"><h3>RWA engine</h3><p>Computes tranche attachment/detachment, thickness, SEC-ERBA risk weights, RWA and 8% capital — with period-on-period movement analysis.</p></div>
+      <div class="card"><h3>Serve</h3><p>A dependency-free interactive dashboard plus a Power BI model (star schema + DAX measures) for management information.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Pipeline architecture</h2>
+    <pre class="mermaid">
+flowchart LR
+  SRC["Issuer tapes (.xlsx)<br/>+ investor reports (.pdf)"] --> PRE["1 · Pre-processing<br/>parse · decode · validate"]
+  PRE --> STG["BigQuery: staging"] --> SQLT["4 · SQL transforms"] --> MART["BigQuery: marts"]
+  MART --> RWA["5 · SEC-ERBA RWA engine"] --> MART
+  MART --> CONS["6 · Power BI · dashboard · reporting"]
+    </pre>
+  </section>
+
+  <section>
+    <h2>Surveillance metrics</h2>
+    <table>
+      <tr><th>Domain</th><th>Metrics</th></tr>
+      <tr><td>Prepayment</td><td>CPR / SMM / PSA (1M, 3M, 12M), PPR</td></tr>
+      <tr><td>Credit performance</td><td>Delinquency buckets, 90+ DPD, arrears migration</td></tr>
+      <tr><td>Loss</td><td>CDR, loss severity, recovery rate, cumulative loss</td></tr>
+      <tr><td>Regulatory capital</td><td>SEC-ERBA risk weight, RWA, 8% capital, capital movement</td></tr>
+      <tr><td>Stress testing</td><td>HPI shock → stressed LTV, expected loss vs. credit support</td></tr>
+    </table>
+  </section>
+
+  <footer>
+    Built from public-style securitisation data for learning and demonstration. RWA figures use
+    documented, simplified assumptions and are not a production regulatory calculation.
+  </footer>
+</div>
+<script>mermaid.initialize({startOnLoad:true,theme:'neutral'});</script>
+</body></html>
