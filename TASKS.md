@@ -12,7 +12,7 @@ Legend: [x] done · [~] in progress · [ ] to do
 - [x] ADR 0001: ingestion trigger + transform location (docs/decisions/)
 - [x] README / .gitignore / requirements.txt / deals.yml
 - [x] WIP log + this task list
-- [~] git init + push to GitHub (commands ready: docs/GITHUB_SETUP.md)
+- [x] git init + push to GitHub (live: github.com/naveen1973/rmbs-rwa-pipeline)
 
 ## 1 · Ingestion (src/ingest)
 - [x] Parse EDW AR-field tape, decode coded fields, derive metrics
