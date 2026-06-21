@@ -1,0 +1,17 @@
+{
+  "name": "LDI Data Theme",
+  "dataColors": [
+    "#1a365d",
+    "#2b6cb0",
+    "#4299e1",
+    "#63b3ed",
+    "#90cdf4",
+    "#bee3f8"
+  ],
+  "background": "#f7fafc",
+  "foreground": "#1a202c",
+  "tableAccent": "#2b6cb0",
+  "firstLevelElements": "#1a365d",
+  "secondLevelElements": "#2b6cb0",
+  "thirdLevelElements": "#4299e1"
+}

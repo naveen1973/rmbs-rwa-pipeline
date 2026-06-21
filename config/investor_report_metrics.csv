@@ -1,0 +1,17 @@
+DealID,ReportDate,CutoffDate,CPR_1m,CPR_3m,CPR_12m,CDR_1m,CDR_3m,CDR_Lifetime,PoolBalance,PoolFactor,WA_LTV,WA_Coupon,Arrears_30_60_Pct,Arrears_60_90_Pct,Arrears_90Plus_Pct,CE_ClassA,Factor_ClassA,Notes
+AVON2,2020-11-30,2020-11-30,,,,,,,,,,,,,,,from IR Nov 2020
+AVON2,2021-02-28,2021-02-28,,,,,,,,,,,,,,,from IR Feb 2021
+BLETCHLEY,2024-08-27,2024-08-31,,,,,,,,,,,,,,,from IR Aug 2024
+BLETCHLEY,2024-09-27,2024-09-30,,,,,,,,,,,,,,,from IR Sep 2024
+BLETCHLEY,2024-10-28,2024-10-31,,,,,,,,,,,,,,,from IR Oct 2024
+BLETCHLEY,2024-11-27,2024-11-30,,,,,,,,,,,,,,,from IR Nov 2024
+BLETCHLEY,2024-12-27,2024-12-31,,,,,,,,,,,,,,,from IR Dec 2024
+CANTERBURY,2021-01-31,2021-01-31,,,,,,,,,,,,,,,from IR Jan 2021
+CANTERBURY,2021-02-28,2021-02-28,,,,,,,,,,,,,,,from IR Feb 2021
+CANTERBURY,2021-11-30,2021-11-30,,,,,,,,,,,,,,,from IR Nov 2021
+CANTERBURY,2021-12-31,2021-12-31,,,,,,,,,,,,,,,from IR Dec 2021
+HADRIAN,2025-08-31,2025-08-31,,,,,,,,,,,,,,,from IR Aug 2025
+HADRIAN,2025-11-30,2025-11-30,,,,,,,,,,,,,,,from IR Nov 2025
+STRATTON2021_1,2021-12-31,2021-12-31,,,,,,,,,,,,,,,from IR Dec 2021
+STRATTON2021_1,2022-03-31,2022-03-31,,,,,,,,,,,,,,,from IR Mar 2022
+STRATTON2021_1,2022-06-30,2022-06-30,,,,,,,,,,,,,,,from IR Jun 2022

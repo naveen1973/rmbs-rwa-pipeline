@@ -97,16 +97,23 @@ def extract_tape(tape_path: Path, deal_id: str) -> pd.DataFrame:
     # Read data (skip description row if present)
     df = pd.read_excel(tape_path, sheet_name=sheet_name)
 
-    # Check if first row is descriptions (contains long text)
+    # Check if first row is descriptions (contains description keywords or long text)
     if df.shape[0] > 0:
         first_row = df.iloc[0]
+        # Check for description keywords like "Pool", "Identifier", "Date"
+        desc_keywords = sum(1 for v in first_row if isinstance(v, str) and
+                           any(kw in v for kw in ["Pool", "Identifier", "Date", "Loan", "Balance"]))
         long_text_count = sum(1 for v in first_row if isinstance(v, str) and len(v) > 50)
-        if long_text_count > 5:
+        if desc_keywords > 5 or long_text_count > 5:
             print("  Skipping description row")
             df = df.iloc[1:].reset_index(drop=True)
 
     # Clean column names
     df.columns = [clean_column_name(c) for c in df.columns]
+
+    # Keep only AR columns (drop non-standard columns that vary between tapes)
+    ar_cols = [c for c in df.columns if c.startswith("AR")]
+    df = df[ar_cols].copy()
 
     # Add DealID
     df.insert(0, "DealID", deal_id)
@@ -126,7 +133,7 @@ def extract_tape(tape_path: Path, deal_id: str) -> pd.DataFrame:
     return df
 
 
-def upload_to_bigquery(df: pd.DataFrame, deal_id: str, dry_run: bool = False) -> None:
+def upload_to_bigquery(df: pd.DataFrame, deal_id: str, dry_run: bool = False, append: bool = False) -> None:
     """Upload DataFrame to BigQuery staging table via bq CLI."""
     import subprocess
     import tempfile
@@ -144,10 +151,15 @@ def upload_to_bigquery(df: pd.DataFrame, deal_id: str, dry_run: bool = False) ->
         csv_path = f.name
         df.to_csv(f, index=False)
 
-    print(f"Uploading to {table_ref}...")
+    mode = "Appending to" if append else "Replacing"
+    print(f"{mode} {table_ref}...")
 
     # Use bq load command (works with AVG SSL)
-    cmd = f'bq load --source_format=CSV --replace --autodetect {table_ref} "{csv_path}"'
+    # For append mode, don't use autodetect - use existing table schema
+    if append:
+        cmd = f'bq load --source_format=CSV --skip_leading_rows=1 {table_ref} "{csv_path}"'
+    else:
+        cmd = f'bq load --source_format=CSV --replace --autodetect {table_ref} "{csv_path}"'
 
     result = subprocess.run(cmd, capture_output=True, text=True, shell=True)
 
@@ -208,6 +220,11 @@ def main():
         action="store_true",
         help="Extract data but don't upload to BigQuery",
     )
+    parser.add_argument(
+        "--append",
+        action="store_true",
+        help="Append to existing table instead of replacing",
+    )
     args = parser.parse_args()
 
     try:
@@ -216,7 +233,7 @@ def main():
         print(f"Tape: {tape_path}")
 
         df = extract_tape(tape_path, deal["id"])
-        upload_to_bigquery(df, deal["id"], dry_run=args.dry_run)
+        upload_to_bigquery(df, deal["id"], dry_run=args.dry_run, append=args.append)
 
         print("Done.")
 

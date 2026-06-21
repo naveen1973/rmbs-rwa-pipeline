@@ -25,8 +25,8 @@ deals:
     folder: Canterbury Finance No 3
     asset_class: UK RMBS
     status: active
-    tape_pattern: "*Data_Tape*.xlsx"
-    ir_pattern: "*IR*.pdf"
+    tape_pattern: "BOE_Canby3*.xlsx"
+    ir_pattern: "*Investor Report*.pdf"
   - id: HADRIAN
     name: Hadrian Funding 2025-1 PLC
     folder: Hadrian Funding 2025-1 PLC

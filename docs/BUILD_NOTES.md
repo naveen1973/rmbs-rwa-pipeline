@@ -310,3 +310,92 @@ The FLP (first loss piece) dominates capital consumption — at 1250% risk weigh
 requires £105M RWA. This is the Basel penalty for holding unrated equity risk.
 
 Run: `python scripts/run_rwa.py`
+
+## Capital structure from investor reports — the liability side
+
+The RWA engine needs tranche data (balances, attachment points, credit enhancement), but this isn't
+in the loan-level tape — it's in the **investor report**, the monthly PDF issuers publish to bondholders.
+Extracted Avon Finance No.2 capital structure from the Nov 2020 investor report:
+
+| Class | ISIN | Balance | Factor | CE | Coupon |
+|-------|------|---------|--------|-----|--------|
+| A | XS2229040725 | £648.2M | 97.3% | 18.0% | SONIA+0.90% |
+| B | XS2229040998 | £32.5M | 100.0% | 14.0% | SONIA+1.50% |
+| C | XS2229041020 | £32.5M | 100.0% | 10.0% | SONIA+2.00% |
+| D | XS2229041293 | £24.4M | 100.0% | 7.0% | SONIA+2.50% |
+| E | XS2229041376 | £20.3M | 100.0% | 4.5% | SONIA+3.00% |
+| F | XS2229041459 | £8.1M | 100.0% | 3.5% | SONIA+3.25% |
+| Z | XS2229041533 | £28.4M | 100.0% | 0.0% | (equity) |
+
+Saved to `config/capital_structures.csv` and loaded to BigQuery as `rmbs_marts.dim_tranche`.
+
+This completes the **Asset + Liability** view of a securitisation:
+- **Assets** = the mortgage pool (LLD from European DataWarehouse) → `fact_loan_period`, `dim_loan`
+- **Liabilities** = the tranches issued against the pool (investor reports) → `dim_tranche`
+
+The Power BI dashboard will show both sides — pool performance metrics alongside tranche credit
+enhancement, factors, and RWA. This is the investor/portfolio manager view that makes the project
+a complete surveillance platform rather than just a loan tape viewer.
+
+## Power BI Pages 2–3 — prepared, not yet built
+
+Created instruction files for the remaining dashboard pages:
+
+| Page | File | Content |
+|------|------|---------|
+| Page 2: Capital Structure | `powerbi/page2_capital_structure.md` | DAX measures (CE %, Factor, Paydown), waterfall visual, tranche table |
+| Page 3: Stress Testing | `powerbi/page3_stress_testing.md` | HPI shock scenarios, stressed LTV, negative equity %, CE headroom |
+
+**Next steps:**
+1. Open Power BI → Get Data → BigQuery → `dim_tranche`
+2. Create relationship to `dim_deal`
+3. Add DAX measures from the instruction files
+4. Build Page 2 layout (KPI cards + waterfall + table)
+5. Build Page 3 layout (scenario slicer + stress metrics)
+6. Screenshot for portfolio repo
+
+## Multi-period loan data loaded — time-series analytics enabled
+
+Loaded **13 periods** of loan-level data to BigQuery across two programmes:
+
+| Deal | Periods | Date Range | Loans/Period |
+|------|---------|------------|--------------|
+| **AVON2** | 6 | Sep 2020 – Feb 2021 | ~8,200 |
+| **BLETCHLEY** | 7 | Jul 2024 – Feb 2025 | 1,079 |
+
+**Total: 56,850 loan-period rows** — enough to build time-series analytics (prepayment trends, arrears
+migration, balance amortisation) rather than static point-in-time snapshots.
+
+**Loader improvements made during bulk load:**
+- Added `--append` flag for incremental loads
+- Description row detection (skips "AR1 Pool Cut-off Date" header text)
+- AR-column-only filtering (avoids schema drift from non-standard columns like `Month_end_Interest_Applied`)
+- Unix line endings (`lineterminator='\n'`) to fix BigQuery CSV parsing on Windows
+
+**Remaining programmes (Canterbury, Hadrian, Stratton)** have tapes in OneDrive but need conform views
+written before loading. The loader and patterns are proven — scaling to 50+ deals is now mechanical.
+
+## Investor report metrics template — CPR/CE/Factor from PDFs
+
+Created `config/investor_report_metrics.csv` with placeholder rows for each available investor report.
+These fields come from the investor reports (PDFs), not the loan tapes:
+
+| Field | Source | Use |
+|-------|--------|-----|
+| CPR_1m/3m/12m | IR performance section | Prepayment speed |
+| CDR_1m/3m/Lifetime | IR credit section | Default rate |
+| CE_ClassA, Factor_ClassA | IR liability section | Capital structure ratios |
+| Arrears_30/60/90_Pct | IR arrears section | Pool delinquency |
+
+**Why this matters:** Time-series charts (Page 3: Peer Analysis) need these metrics over time. The loan
+tape gives us pool-level stats (WA LTV, balance, loan count), but prepayment speed (CPR) and credit
+enhancement (CE) come from the IR. This CSV bridges the gap — a manual step that could later be
+automated with PDF parsing (Tabula/pdfplumber).
+
+## Next steps for tomorrow
+
+1. **Rebuild marts** — refresh `pool_summary`, `fact_loan_period` to include all 13 periods
+2. **Fill IR metrics** — extract CPR/CE/Factor from investor report PDFs
+3. **SEC-ERBA RWA** — run calculations for AVON2 and BLETCHLEY tranches
+4. **Power BI Page 3** — time-series line chart (CE, Factor, LTV, CPR, Arrears>90)
+5. **Screenshots → GitHub** — three pages, push to portfolio repo
