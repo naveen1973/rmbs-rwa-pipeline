@@ -15,27 +15,27 @@ SELECT
   CAST(s.AR1 AS DATE)                 AS CutoffDate,
 
   -- ===========================================
-  -- BALANCE & PAYMENT FIELDS
+  -- BALANCE & PAYMENT FIELDS (SAFE_CAST handles ND → NULL)
   -- ===========================================
-  CAST(s.AR67 AS NUMERIC)             AS CurrentBalance,
-  CAST(s.AR71 AS NUMERIC)             AS PaymentDue,
-  CAST(s.AR97 AS NUMERIC)             AS PrepaymentAmount,
-  CAST(s.AR100 AS NUMERIC)            AS CumulativePrepayments,
+  SAFE_CAST(s.AR67 AS NUMERIC)        AS CurrentBalance,
+  SAFE_CAST(s.AR71 AS NUMERIC)        AS PaymentDue,
+  SAFE_CAST(s.AR97 AS NUMERIC)        AS PrepaymentAmount,
+  SAFE_CAST(s.AR100 AS NUMERIC)       AS CumulativePrepayments,
 
   -- ===========================================
   -- INTEREST RATE FIELDS
   -- ===========================================
   idx.label                           AS CurrentInterestRateIndex,
   CAST(s.AR108 AS STRING)             AS CurrentInterestRateIndex_code,
-  CAST(s.AR109 AS NUMERIC) / 100      AS CurrentInterestRate,      -- Avon stores as %, normalise to decimal
-  CAST(s.AR110 AS NUMERIC) / 100      AS CurrentInterestRateMargin, -- Avon stores as %, normalise to decimal
+  SAFE_CAST(s.AR109 AS NUMERIC) / 100 AS CurrentInterestRate,      -- Avon stores as %, normalise to decimal
+  SAFE_CAST(s.AR110 AS NUMERIC) / 100 AS CurrentInterestRateMargin, -- Avon stores as %, normalise to decimal
   SAFE_CAST(s.AR111 AS INT64)         AS InterestRateResetInterval,  -- ND/header → NULL
 
   -- ===========================================
   -- VALUATION FIELDS
   -- ===========================================
-  CAST(s.AR141 AS NUMERIC)            AS CurrentLTV,
-  CAST(s.AR143 AS NUMERIC)            AS CurrentValuation,
+  SAFE_CAST(s.AR141 AS NUMERIC)       AS CurrentLTV,
+  SAFE_CAST(s.AR143 AS NUMERIC)       AS CurrentValuation,
   valtype.label                       AS CurrentValuationType,
   CAST(s.AR144 AS STRING)             AS CurrentValuationType_code,
   SAFE.PARSE_DATE('%Y-%m-%d', CAST(s.AR145 AS STRING)) AS CurrentValuationDate,
@@ -52,12 +52,12 @@ SELECT
   CAST(s.AR166 AS STRING)             AS AccountStatus_code,
 
   -- ===========================================
-  -- ARREARS FIELDS
+  -- ARREARS FIELDS (SAFE_CAST handles ND → NULL)
   -- ===========================================
-  CAST(s.AR169 AS NUMERIC)            AS ArrearsBalance,
-  CAST(s.AR170 AS NUMERIC)            AS MonthsInArrears,
-  CAST(s.AR171 AS NUMERIC)            AS Arrears1MonthAgo,
-  CAST(s.AR172 AS NUMERIC)            AS Arrears2MonthsAgo,
+  SAFE_CAST(s.AR169 AS NUMERIC)       AS ArrearsBalance,
+  SAFE_CAST(s.AR170 AS NUMERIC)       AS MonthsInArrears,
+  SAFE_CAST(s.AR171 AS NUMERIC)       AS Arrears1MonthAgo,
+  SAFE_CAST(s.AR172 AS NUMERIC)       AS Arrears2MonthsAgo,
 
   -- ===========================================
   -- YOUR TURN: Add remaining fields
@@ -71,13 +71,13 @@ SELECT
   SAFE.PARSE_DATE('%Y-%m-%d', CAST(s.AR175 AS STRING)) AS RedemptionDate,
 
   -- ===========================================
-  -- DEFAULT & LOSS FIELDS
+  -- DEFAULT & LOSS FIELDS (SAFE_CAST handles ND → NULL)
   -- ===========================================
-  CAST(s.AR177 AS NUMERIC)            AS DefaultAmount,
+  SAFE_CAST(s.AR177 AS NUMERIC)       AS DefaultAmount,
   SAFE.PARSE_DATE('%Y-%m-%d', CAST(s.AR178 AS STRING)) AS DateOfDefault,
-  CAST(s.AR179 AS NUMERIC)            AS SalePrice,
-  CAST(s.AR180 AS NUMERIC)            AS LossOnSale,
-  CAST(s.AR181 AS NUMERIC)            AS CumulativeRecoveries
+  SAFE_CAST(s.AR179 AS NUMERIC)       AS SalePrice,
+  SAFE_CAST(s.AR180 AS NUMERIC)       AS LossOnSale,
+  SAFE_CAST(s.AR181 AS NUMERIC)       AS CumulativeRecoveries
 
 FROM `rmbs-rwa-pipeline.rmbs_staging.loans_avon` s
 

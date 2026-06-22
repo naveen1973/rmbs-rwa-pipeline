@@ -12,22 +12,22 @@ SELECT
   CAST(s.AR3 AS STRING)               AS LoanID,
   SAFE.PARSE_DATE('%Y-%m-%d', CAST(s.AR1 AS STRING)) AS CutoffDate,
 
-  -- Balance & payment fields
-  CAST(s.AR67 AS NUMERIC)             AS CurrentBalance,
-  CAST(s.AR71 AS NUMERIC)             AS PaymentDue,
-  CAST(s.AR97 AS NUMERIC)             AS PrepaymentAmount,
-  CAST(s.AR100 AS NUMERIC)            AS CumulativePrepayments,
+  -- Balance & payment fields (SAFE_CAST handles ND → NULL)
+  SAFE_CAST(s.AR67 AS NUMERIC)        AS CurrentBalance,
+  SAFE_CAST(s.AR71 AS NUMERIC)        AS PaymentDue,
+  SAFE_CAST(s.AR97 AS NUMERIC)        AS PrepaymentAmount,
+  SAFE_CAST(s.AR100 AS NUMERIC)       AS CumulativePrepayments,
 
   -- Interest rate fields (Bletchley: already decimal, no /100)
   idx.label                           AS CurrentInterestRateIndex,
   CAST(s.AR108 AS STRING)             AS CurrentInterestRateIndex_code,
-  CAST(s.AR109 AS NUMERIC)            AS CurrentInterestRate,
-  CAST(s.AR110 AS NUMERIC)            AS CurrentInterestRateMargin,
+  SAFE_CAST(s.AR109 AS NUMERIC)       AS CurrentInterestRate,
+  SAFE_CAST(s.AR110 AS NUMERIC)       AS CurrentInterestRateMargin,
   SAFE_CAST(s.AR111 AS INT64)         AS InterestRateResetInterval,  -- ND → NULL
 
-  -- Valuation fields
-  CAST(s.AR141 AS NUMERIC)            AS CurrentLTV,
-  CAST(s.AR143 AS NUMERIC)            AS CurrentValuation,
+  -- Valuation fields (SAFE_CAST handles ND → NULL)
+  SAFE_CAST(s.AR141 AS NUMERIC)       AS CurrentLTV,
+  SAFE_CAST(s.AR143 AS NUMERIC)       AS CurrentValuation,
   valtype.label                       AS CurrentValuationType,
   CAST(s.AR144 AS STRING)             AS CurrentValuationType_code,
   SAFE.PARSE_DATE('%Y-%m-%d', CAST(s.AR145 AS STRING)) AS CurrentValuationDate,
@@ -42,11 +42,11 @@ SELECT
   acct.label                          AS AccountStatus,
   CAST(s.AR166 AS STRING)             AS AccountStatus_code,
 
-  -- Arrears fields
-  CAST(s.AR169 AS NUMERIC)            AS ArrearsBalance,
-  CAST(s.AR170 AS NUMERIC)            AS MonthsInArrears,
-  CAST(s.AR171 AS NUMERIC)            AS Arrears1MonthAgo,
-  CAST(s.AR172 AS NUMERIC)            AS Arrears2MonthsAgo,
+  -- Arrears fields (SAFE_CAST handles ND → NULL)
+  SAFE_CAST(s.AR169 AS NUMERIC)       AS ArrearsBalance,
+  SAFE_CAST(s.AR170 AS NUMERIC)       AS MonthsInArrears,
+  SAFE_CAST(s.AR171 AS NUMERIC)       AS Arrears1MonthAgo,
+  SAFE_CAST(s.AR172 AS NUMERIC)       AS Arrears2MonthsAgo,
 
   -- Additional fields
   CAST(s.AR36 AS STRING)              AS BankruptcyFlag,
@@ -56,12 +56,12 @@ SELECT
   CAST(s.AR174 AS STRING)             AS Litigation,
   SAFE.PARSE_DATE('%Y-%m-%d', CAST(s.AR175 AS STRING)) AS RedemptionDate,
 
-  -- Default & loss fields
-  CAST(s.AR177 AS NUMERIC)            AS DefaultAmount,
+  -- Default & loss fields (SAFE_CAST handles ND → NULL)
+  SAFE_CAST(s.AR177 AS NUMERIC)       AS DefaultAmount,
   SAFE.PARSE_DATE('%Y-%m-%d', CAST(s.AR178 AS STRING)) AS DateOfDefault,
-  CAST(s.AR179 AS NUMERIC)            AS SalePrice,
-  CAST(s.AR180 AS NUMERIC)            AS LossOnSale,
-  CAST(s.AR181 AS NUMERIC)            AS CumulativeRecoveries
+  SAFE_CAST(s.AR179 AS NUMERIC)       AS SalePrice,
+  SAFE_CAST(s.AR180 AS NUMERIC)       AS LossOnSale,
+  SAFE_CAST(s.AR181 AS NUMERIC)       AS CumulativeRecoveries
 
 FROM `rmbs-rwa-pipeline.rmbs_staging.loans_bletchley` s
 
