@@ -63,6 +63,80 @@ See **[docs/pipeline.md](docs/pipeline.md)** for the stage-by-stage mapping and 
 **[docs/decisions/0001-ingestion-and-transformation.md](docs/decisions/0001-ingestion-and-transformation.md)**
 for why ingestion runs locally and transformation runs as BigQuery SQL.
 
+## SEC-ERBA RWA Engine
+
+The pipeline includes a **Basel 3.1 / UK CRR securitisation RWA engine** implementing the
+**External Ratings-Based Approach (SEC-ERBA)** — the regulatory method for calculating
+risk-weighted assets on rated securitisation positions.
+
+### How it works
+
+**Risk-Weighted Assets (RWA)** determine how much capital a bank must hold against a position:
+
+```
+RWA = Exposure × Risk Weight
+Capital Requirement = RWA × 8%
+```
+
+SEC-ERBA assigns risk weights based on three factors:
+
+| Factor | Impact |
+|--------|--------|
+| **Credit Rating** | AAA → 15%, BBB → 105%, Unrated → 1250% |
+| **Seniority** | Senior tranches get lower risk weights |
+| **Maturity** | Longer WAL → higher risk weight (interpolate 1yr ↔ 5yr) |
+
+### Capital structure concepts
+
+```
+         100% ┌─────────────────────────────┐
+              │     Class A (Senior)        │ ← AAA, 85% thickness, 15-20% RW
+         15%  ├─────────────────────────────┤
+              │     Class B (Mezz)          │ ← AA, 7% thickness
+          8%  ├─────────────────────────────┤
+              │     Class C (Mezz)          │ ← A, 4% thickness
+          4%  ├─────────────────────────────┤
+              │     Class D (Junior)        │ ← BBB, 3% thickness
+          1%  ├─────────────────────────────┤
+              │     FLP (First Loss)        │ ← Unrated, 1250% RW
+          0%  └─────────────────────────────┘
+              ↑                             ↑
+         Attachment                    Detachment
+```
+
+- **Attachment point (A)** = where losses start hitting this tranche
+- **Detachment point (D)** = where losses fully wipe out this tranche
+- **Thickness = D − A** = tranche size as % of pool
+- **Credit Enhancement (CE)** = subordination below senior tranche (here: 15%)
+
+### Example output (AVON2)
+
+```
+Tranche    Rating   Balance       Thick   RW       RWA           Capital
+─────────────────────────────────────────────────────────────────────────
+Class A    AAA      £713.5M       85.0%   18.1%    £129.4M       £10.3M
+Class B    AA       £58.8M         7.0%   46.4%    £27.2M        £2.2M
+Class C    A        £33.6M         4.0%   85.4%    £28.7M        £2.3M
+Class D    BBB      £25.2M         3.0%  159.6%    £40.2M        £3.2M
+FLP        NR       £8.4M          1.0% 1250.0%   £104.9M        £8.4M
+─────────────────────────────────────────────────────────────────────────
+TOTAL               £839.4M              39.4%    £330.4M       £26.4M
+```
+
+**Key insight:** The unrated First Loss Piece (FLP) is only 1% of the pool but consumes
+32% of total RWA (£104.9M ÷ £330.4M). This is the Basel penalty for holding equity risk.
+
+### Code structure
+
+```
+src/rwa/
+├── sec_erba.py         # Risk weight lookup table (17 ratings × 2 seniorities)
+├── capital_structure.py # Tranche and CapitalStructure dataclasses
+└── rwa_calculator.py    # RWA = EAD × RW, Capital = RWA × 8%
+```
+
+Run: `python scripts/run_rwa.py`
+
 ## Quickstart
 
 ```bash

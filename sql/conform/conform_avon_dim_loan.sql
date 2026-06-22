@@ -127,4 +127,7 @@ ON CAST(s.AR131 AS STRING) = ref_pt.code
 
 LEFT JOIN `rmbs-rwa-pipeline.rmbs_marts.ref_region` reg
   ON CAST(s.AR128 AS STRING) = reg.code
+
+-- Deduplicate: keep one row per loan (most recent period)
+QUALIFY ROW_NUMBER() OVER (PARTITION BY s.DealID, CAST(s.AR3 AS STRING) ORDER BY CAST(s.AR1 AS DATE) DESC) = 1
 ;

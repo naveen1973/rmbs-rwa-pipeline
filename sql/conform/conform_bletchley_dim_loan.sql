@@ -86,4 +86,7 @@ LEFT JOIN `rmbs-rwa-pipeline.rmbs_marts.ref_region` reg
 
 -- Filter out header/empty rows
 WHERE s.AR3 IS NOT NULL
+
+-- Deduplicate: keep one row per loan (most recent period)
+QUALIFY ROW_NUMBER() OVER (PARTITION BY s.DealID, CAST(s.AR3 AS STRING) ORDER BY CAST(s.AR1 AS DATE) DESC) = 1
 ;
