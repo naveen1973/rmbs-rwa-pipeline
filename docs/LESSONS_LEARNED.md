@@ -163,6 +163,112 @@ set REQUESTS_CA_BUNDLE=C:\path\to\ca-bundle-with-avg.crt
 
 ---
 
+## 11. Power BI Relationship Chaos — A Costly Lesson
+
+**Issue:** After loading multi-period data, Power BI refresh failed repeatedly with errors like:
+- "Column 'DealID' contains duplicate value 'AVON2' — not allowed on the one side of a many-to-one relationship"
+- "Column 'ArrearsBalance' contains duplicate value '0' — not allowed for primary key"
+- Cascade failures: "Load was cancelled by an error in loading a previous table"
+
+**Time lost:** ~2 hours of debugging, deleting relationships one by one, repeated refresh failures.
+
+### Root Causes
+
+| Cause | Why It Happened | When It Was Introduced |
+|-------|-----------------|------------------------|
+| **Model built on single-period data** | Original model had 1 row per DealID. DealID worked as a unique key. Adding 13 periods broke this assumption. | Phase 1: Initial Power BI setup |
+| **No dedicated dimension table** | Used `pool_summary.DealID` as a key instead of creating `dim_deal`. Fact tables can't be on the "1" side of relationships. | Phase 1: Data model design |
+| **Power BI auto-detect relationships** | Auto-detect created relationships on column name matches (ArrearsBalance ↔ ArrearsBalance, Balance ↔ Balance). These are measures, not keys. | Phase 2: Adding new tables |
+| **Incremental fixing instead of clean rebuild** | Spent time hunting down bad relationships one by one instead of deleting all and rebuilding correctly. | Phase 3: Debugging |
+
+### What Should Have Been Done
+
+**Phase 1: Data Model Design (BEFORE building Power BI)**
+```
+✗ Wrong approach:
+  - Load fact tables directly
+  - Let Power BI auto-detect relationships
+  - Use fact table columns as keys
+
+✓ Correct approach:
+  - Design star schema on paper FIRST
+  - Create dimension tables (dim_deal, dim_date) in the warehouse
+  - Document: "dim_deal.DealID is the ONLY valid key for deal-level joins"
+  - Disable Power BI auto-detect relationships
+```
+
+**Phase 2: Adding New Tables**
+```
+✗ Wrong approach:
+  - Click "Load" and let Power BI figure it out
+  - Accept auto-detected relationships
+
+✓ Correct approach:
+  - Load tables with relationships DISABLED
+  - Manually create ONLY the documented relationships
+  - Verify cardinality: dimension (1) → fact (*)
+```
+
+**Phase 3: When Errors Occur**
+```
+✗ Wrong approach:
+  - Fix relationships one by one
+  - Keep trying Refresh after each fix
+  - Chase cascade errors
+
+✓ Correct approach:
+  - Delete ALL relationships immediately
+  - Rebuild from the documented star schema
+  - One clean Refresh at the end
+```
+
+### Prevention Checklist for Future Projects
+
+Before loading data to Power BI:
+
+- [ ] **Star schema documented** — which tables are dimensions vs facts?
+- [ ] **Dimension tables exist** — every fact table's foreign key has a corresponding dimension
+- [ ] **Keys identified** — only true identifiers (IDs, codes), never measures (Balance, Rate, Count)
+- [ ] **Multi-period tested** — if data will grow over time, test with multiple periods BEFORE building visuals
+- [ ] **Auto-detect OFF** — File → Options → Data Load → uncheck "Autodetect new relationships"
+
+### The Correct RMBS Model
+
+```
+                    dim_deal (1)
+                        │
+        ┌───────────────┼───────────────┐
+        │               │               │
+        ▼               ▼               ▼
+   pool_summary    dim_tranche    fact_loan_period
+       (*)             (*)             (*)
+        │
+        ├── strat_ltv (*)
+        ├── strat_region (*)
+        ├── strat_occupancy (*)
+        ├── strat_repayment (*)
+        ├── strat_seasoning (*)
+        └── strat_delinquency (*)
+
+All relationships: dim_deal.DealID (1) → table.DealID (*)
+NO relationships between fact/strat tables.
+NO relationships using measure columns (Balance, ArrearsBalance, Rate, etc.)
+```
+
+---
+
+## 12. Duplicate Table Loads in Power BI
+
+**Issue:** Tables appeared with "(2)" suffix (e.g., `dim_tranche (2)`, `pool_summary (2)`).
+
+**Root cause:** Clicked "Load" multiple times or re-imported tables that already existed in the model.
+
+**Solution:** In Power Query Editor → right-click duplicate table → Delete. Keep the original, delete the "(2)" version.
+
+**Lesson:** Before loading new tables, check if they already exist in the model. Power BI doesn't warn you — it just creates duplicates.
+
+---
+
 ## Summary: Data Engineering Principles Reinforced
 
 | Principle | Example from this project |
