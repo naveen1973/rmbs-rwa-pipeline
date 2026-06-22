@@ -1,0 +1,11 @@
+DealID,TrancheID,Rating,OriginalBalance,CurrentBalance,Factor,Attachment,Detachment,CreditEnhancement,Coupon,WAL,CutoffDate
+AVON2,Class A,AAA,425000000,,,,0.15,1.00,0.15,SONIA+0.85,3.5,
+AVON2,Class B,AA,35000000,,,,0.08,0.15,0.08,SONIA+1.20,4.0,
+AVON2,Class C,A,20000000,,,,0.04,0.08,0.04,SONIA+1.75,4.5,
+AVON2,Class D,BBB,15000000,,,,0.01,0.04,0.01,SONIA+2.50,5.0,
+AVON2,Class Z,,5000000,,,,0.00,0.01,0.00,SONIA+5.00,5.0,
+BLETCHLEY,Class A,AAA,,,,,,,,,
+BLETCHLEY,Class B,AA,,,,,,,,,
+CANTERBURY,Class A,AAA,,,,,,,,,
+HADRIAN,Class A,AAA,,,,,,,,,
+STRATTON,Class A,AAA,,,,,,,,,

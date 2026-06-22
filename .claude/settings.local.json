@@ -20,7 +20,8 @@
       "PowerShell(Get-Command bq)",
       "Bash(gh --version)",
       "Bash(gh auth *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m '@ *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\Naveen\\.claude\\projects\\c--Users-Naveen-Documents-rmbs-rwa-pipeline\\memory"

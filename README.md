@@ -34,6 +34,20 @@ This project is a portfolio piece built to evidence three core competencies:
 - **Serve** — a dependency-free HTML dashboard (5 surveillance pages + RWA) and a
   Power BI model (star schema + ~50 DAX measures + build guide).
 
+## Power BI Dashboard
+
+Three-page dashboard connected to BigQuery via native connector:
+
+| Page | Purpose | Key Visuals |
+|------|---------|-------------|
+| **Pool Analysis** | Pool composition snapshot | KPIs (Balance, Count, WA_LTV, WA_Rate), Region bar, LTV band bar, Occupancy donut |
+| **Capital Structure** | Tranche-level RWA | Waterfall of tranches, RW by rating, Capital requirements |
+| **Time Series** | Performance over time | Pool Factor, CPR, Arrears 90+, Balance trends |
+
+![Pool Analysis](docs/screenshots/01_pool_analysis.png)
+![Capital Structure](docs/screenshots/02_capital_structure.png)
+![Time Series](docs/screenshots/03_time_series.png)
+
 ## Repo layout
 
 ```

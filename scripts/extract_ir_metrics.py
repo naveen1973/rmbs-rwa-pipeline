@@ -185,13 +185,23 @@ def extract_pool_metrics(pdf) -> dict:
     for page in pdf.pages:
         text = page.extract_text() or ''
 
-        # Pool Balance
+        # Pool Balance - AVON format
         match = re.search(r'Current Balance of Mortgage Loans[^\d]*([\d,]+\.?\d*)', text)
         if match and not metrics['pool_balance']:
             metrics['pool_balance'] = parse_number(match.group(1))
 
-        # WA LTV
+        # Pool Balance - BLETCHLEY format
+        match = re.search(r'Outstanding Current Balance of the Portfolio[^\d]*([\d,]+\.?\d*)', text)
+        if match and not metrics['pool_balance']:
+            metrics['pool_balance'] = parse_number(match.group(1))
+
+        # WA LTV - AVON format
         match = re.search(r'Weighted Average Loan to Value[^\d]*([\d.]+)%?', text, re.IGNORECASE)
+        if match and not metrics['wa_ltv']:
+            metrics['wa_ltv'] = parse_number(match.group(1))
+
+        # WA LTV - BLETCHLEY format (Current LTV by value)
+        match = re.search(r'Weighted Average Current Loan to Value[^\d]*([\d.]+)%?', text, re.IGNORECASE)
         if match and not metrics['wa_ltv']:
             metrics['wa_ltv'] = parse_number(match.group(1))
 
