@@ -126,16 +126,23 @@ SEC-ERBA assigns risk weights based on three factors:
 ### Example output (AVON2)
 
 ```
-Tranche    Rating   Balance       Thick   RW       RWA           Capital
-─────────────────────────────────────────────────────────────────────────
-Class A    AAA      £713.5M       85.0%   18.1%    £129.4M       £10.3M
-Class B    AA       £58.8M         7.0%   46.4%    £27.2M        £2.2M
-Class C    A        £33.6M         4.0%   85.4%    £28.7M        £2.3M
-Class D    BBB      £25.2M         3.0%  159.6%    £40.2M        £3.2M
-FLP        NR       £8.4M          1.0% 1250.0%   £104.9M        £8.4M
-─────────────────────────────────────────────────────────────────────────
-TOTAL               £839.4M              39.4%    £330.4M       £26.4M
+Tranche    Rating   Balance       RW        RWA           Capital
+───────────────────────────────────────────────────────────────────
+Class A    AAA      £648.2M      18.1%     £117.5M        £9.4M
+Class B    AA        £32.5M      43.8%      £14.2M        £1.1M
+Class C    A         £32.5M      76.2%      £24.8M        £2.0M
+Class D    BBB       £24.4M     140.0%      £34.1M        £2.7M
+Class E    BB        £20.3M     330.0%      £67.0M        £5.4M
+Class F    B          £8.1M     750.0%      £60.9M        £4.9M
+Class Z    NR        £28.4M    1250.0%     £355.5M       £28.4M
+───────────────────────────────────────────────────────────────────
+TOTAL               £794.5M      84.9%     £674.1M       £53.9M
 ```
+
+**Key insight:** The unrated Class Z (3.5% of pool) consumes **53% of total RWA** —
+this is Basel's penalty for holding equity risk in a securitisation.
+
+For the full methodology with worked examples, see **[docs/RWA_METHODOLOGY.md](docs/RWA_METHODOLOGY.md)**.
 
 **Key insight:** The unrated First Loss Piece (FLP) is only 1% of the pool but consumes
 32% of total RWA (£104.9M ÷ £330.4M). This is the Basel penalty for holding equity risk.
