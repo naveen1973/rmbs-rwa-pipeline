@@ -215,10 +215,10 @@ def extract_pool_metrics(pdf) -> dict:
         if match and not metrics['cpr_12m']:
             metrics['cpr_12m'] = parse_number(match.group(1))
 
-        # CPR - BLETCHLEY format: "Current CPR 2.54% 2.54% 2.54%"
+        # CPR - BLETCHLEY format: "Current CPR 2.54% 2.54% 2.54%" (this is monthly CPR)
         match = re.search(r'Current CPR\s+([\d.]+)%?', text, re.IGNORECASE)
-        if match and not metrics['cpr_12m']:
-            metrics['cpr_12m'] = parse_number(match.group(1))
+        if match and not metrics['cpr_1m']:
+            metrics['cpr_1m'] = parse_number(match.group(1))
 
         # Monthly CPR
         match = re.search(r'Constant Principal Pre-?payment Rate[^\d]*([\d.]+)%?', text, re.IGNORECASE)
