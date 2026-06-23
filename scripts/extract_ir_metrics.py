@@ -210,8 +210,13 @@ def extract_pool_metrics(pdf) -> dict:
         if match and not metrics['loan_count']:
             metrics['loan_count'] = parse_number(match.group(1))
 
-        # CPR (Annualised)
+        # CPR (Annualised) - AVON format
         match = re.search(r'Annualised CPR[^\d]*([\d.]+)%?', text, re.IGNORECASE)
+        if match and not metrics['cpr_12m']:
+            metrics['cpr_12m'] = parse_number(match.group(1))
+
+        # CPR - BLETCHLEY format: "Current CPR 2.54% 2.54% 2.54%"
+        match = re.search(r'Current CPR\s+([\d.]+)%?', text, re.IGNORECASE)
         if match and not metrics['cpr_12m']:
             metrics['cpr_12m'] = parse_number(match.group(1))
 
@@ -220,23 +225,28 @@ def extract_pool_metrics(pdf) -> dict:
         if match and not metrics['cpr_1m']:
             metrics['cpr_1m'] = parse_number(match.group(1))
 
-        # Arrears 90+ (> 3 months)
-        # Look for "> 6.00 Months in Arrears" or "3.00+ Months in Arrears"
+        # Arrears 90+ (> 3 months) - AVON format
         match = re.search(r'>\s*6\.?\d*\s*Months in Arrears[^\d]*([\d,]+\.?\d*)[^\d]*([\d,]+)[^\d]*([\d.]+)%?', text)
         if match:
-            # The percentage is typically the 3rd capture group
             pct = parse_number(match.group(3))
-            if pct and not metrics['arrears_90plus_pct']:
+            if pct is not None and not metrics['arrears_90plus_pct']:
                 metrics['arrears_90plus_pct'] = pct
+
+        # Arrears 90+ - BLETCHLEY format: ">= 3" row in "Current Months in Arrears" table
+        if not metrics['arrears_90plus_pct'] and 'Current Months in Arrears' in text:
+            match = re.search(r'>=\s*3\s+(\d+)\s+([\d.]+)%?\s+([\d,.]+)\s+([\d.]+)%?', text)
+            if match:
+                pct = parse_number(match.group(4))  # Value % column
+                if pct is not None:
+                    metrics['arrears_90plus_pct'] = pct
 
         # Alternative: sum up 3+ month arrears
         if not metrics['arrears_90plus_pct']:
-            # Look for arrears breakdown table
             arrears_pattern = r'([345]\.?\d*|>\s*6).*Months in Arrears[^\d]*([\d,]+\.?\d*)[^\d]*([\d,]+)[^\d]*([\d.]+)%?'
             matches = re.findall(arrears_pattern, text)
             if matches:
                 total_pct = sum(parse_number(m[3]) or 0 for m in matches)
-                if total_pct > 0:
+                if total_pct >= 0:
                     metrics['arrears_90plus_pct'] = total_pct
 
     return metrics
