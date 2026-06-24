@@ -144,34 +144,6 @@ this is Basel's penalty for holding equity risk in a securitisation.
 
 For the full methodology with worked examples, see **[docs/RWA_METHODOLOGY.md](docs/RWA_METHODOLOGY.md)**.
 
-**Key insight:** The unrated First Loss Piece (FLP) is only 1% of the pool but consumes
-32% of total RWA (£104.9M ÷ £330.4M). This is the Basel penalty for holding equity risk.
-
-### Code structure
-
-```
-src/rwa/
-├── sec_erba.py         # Risk weight lookup table (17 ratings × 2 seniorities)
-├── capital_structure.py # Tranche and CapitalStructure dataclasses
-└── rwa_calculator.py    # RWA = EAD × RW, Capital = RWA × 8%
-```
-
-Run: `python scripts/run_rwa.py`
-
-## Quickstart
-
-```bash
-python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-gcloud auth application-default login               # BigQuery auth (one-time)
-# set project_id + datasets in config/settings.yml, then:
-python -m src.ingest.prep_rmbs        --deal AVON2  # tape -> curated CSVs
-python -m src.warehouse.load_bigquery --deal AVON2  # CSVs -> BigQuery
-python -m src.rwa.sec_erba            --deal AVON2  # RWA + capital
-```
-
-Warehouse = **BigQuery** (Google Cloud). Power BI connects via its native BigQuery connector.
-
 ## Status
 
 Avon Finance No.2 is fully loaded; Bletchley Park, Canterbury, Hadrian and Stratton are
