@@ -19,10 +19,6 @@ This project is a portfolio piece built to evidence three core competencies:
 3. **Power BI dashboard depth** — a properly modelled star schema with ~50 DAX measures and
    a build guide, designed for genuine management information, not just charts.
 
-> The interactive HTML dashboard in this repo is a **working prototype of the Power BI
-> dashboard** — built first to design and agree the exact layout, metrics and interactions
-> before assembling them in Power BI Desktop.
-
 ## What it does
 
 - **Ingest** — parses the European DataWarehouse AR-field loan-level tape (8,000+ loans),
@@ -31,8 +27,7 @@ This project is a portfolio piece built to evidence three core competencies:
 - **Warehouse** — loads curated facts and dimensions into **BigQuery** (`staging` + `marts` datasets).
 - **RWA** — computes tranche attachment/detachment, thickness, SEC-ERBA risk weights,
   RWA and 8% capital per tranche and per deal; tracks period-on-period movement.
-- **Serve** — a dependency-free HTML dashboard (5 surveillance pages + RWA) and a
-  Power BI model (star schema + ~50 DAX measures + build guide).
+- **Serve** — Power BI dashboard (star schema + DAX measures) connected to BigQuery.
 
 ## Power BI Dashboard
 
@@ -63,9 +58,7 @@ rmbs-rwa-pipeline/
 ├── docs/              # pipeline.md (architecture), lineage, methodology, preview
 ├── config/            # deals.yml registry
 ├── tests/             # pytest (RWA logic, reconciliations)
-├── data/              # warehouse + generated CSVs (gitignored)
-├── WIP.md             # running work-in-progress log
-└── TASKS.md           # full task checklist
+└── data/              # warehouse + generated CSVs (gitignored)
 ```
 
 ## Architecture
@@ -143,18 +136,6 @@ TOTAL               £794.5M      84.9%     £674.1M       £53.9M
 this is Basel's penalty for holding equity risk in a securitisation.
 
 For the full methodology with worked examples, see **[docs/RWA_METHODOLOGY.md](docs/RWA_METHODOLOGY.md)**.
-
-## Status
-
-Avon Finance No.2 is fully loaded; Bletchley Park, Canterbury, Hadrian and Stratton are
-registered and awaiting data. Current build state and next steps are tracked in
-**[WIP.md](WIP.md)** and **[TASKS.md](TASKS.md)**.
-
-## Live demo (GitHub Pages)
-
-Once pushed, enable **Settings ▸ Pages ▸ Deploy from branch ▸ main ▸ /docs** to publish the
-interactive dashboard at `https://<your-username>.github.io/rmbs-rwa-pipeline/`.
-Full steps: [docs/GITHUB_SETUP.md](docs/GITHUB_SETUP.md).
 
 ## Disclaimer
 Built from public-style securitisation data for learning/demonstration. The RWA figures
