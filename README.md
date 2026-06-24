@@ -184,20 +184,6 @@ Once pushed, enable **Settings ▸ Pages ▸ Deploy from branch ▸ main ▸ /do
 interactive dashboard at `https://<your-username>.github.io/rmbs-rwa-pipeline/`.
 Full steps: [docs/GITHUB_SETUP.md](docs/GITHUB_SETUP.md).
 
-## Put it on GitHub
-
-```bash
-cd rmbs-rwa-pipeline
-git init -b main
-git add .
-git commit -m "Initial commit: RMBS RWA pipeline scaffold"
-# create an empty repo on github.com (no README), then:
-git remote add origin https://github.com/<you>/rmbs-rwa-pipeline.git
-git push -u origin main
-```
-> Tip: keep this repo **outside** the OneDrive-synced data folder to avoid sync conflicts.
-> Deal tapes and the warehouse are gitignored so no client data is ever pushed.
-
 ## Disclaimer
 Built from public-style securitisation data for learning/demonstration. The RWA figures
 use documented, simplified assumptions and are **not** a production regulatory calculation.
