@@ -3,7 +3,7 @@
 A UK RMBS surveillance **and** securitisation regulatory-capital (RWA) platform.
 It ingests issuer loan-level data tapes and investor reports, builds a BigQuery cloud
 data warehouse, computes **Basel 3.1 / UK CRR securitisation RWA (SEC-ERBA)** on the
-note tranches, and serves the results to Power BI and an interactive HTML dashboard.
+note tranches, and serves the results to a Power BI dashboard.
 
 ## What this project demonstrates
 
@@ -16,8 +16,8 @@ This project is a portfolio piece built to evidence three core competencies:
 2. **ETL pipeline engineering** — a real source-to-warehouse pipeline: ingestion and
    validation in Python, a BigQuery cloud data warehouse (staging → marts), SQL
    transformations, reconciliation controls and documented data lineage.
-3. **Power BI dashboard depth** — a properly modelled star schema with ~50 DAX measures and
-   a build guide, designed for genuine management information, not just charts.
+3. **Power BI dashboard depth** — a properly modelled star schema with DAX measures,
+   designed for genuine management information, not just charts.
 
 ## What it does
 
@@ -42,24 +42,6 @@ Three-page dashboard connected to BigQuery via native connector:
 ![Pool Analysis](docs/screenshots/01_pool_analysis.png)
 ![Capital Structure](docs/screenshots/02_capital_structure.png)
 ![Time Series](docs/screenshots/03_time_series.png)
-
-## Repo layout
-
-```
-rmbs-rwa-pipeline/
-├── src/
-│   ├── ingest/        # 1 · parse & validate tapes / IRs
-│   ├── warehouse/     # 2-3 · load BigQuery (staging + marts)
-│   ├── transform/     # 4 · python transform helpers
-│   ├── rwa/           # 5 · SEC-ERBA RWA engine + movement
-│   └── reporting/     # 6 · HTML preview / exports
-├── sql/               # 4 · SQL transformations & controls
-├── powerbi/           # DAX measures + build guide
-├── docs/              # pipeline.md (architecture), lineage, methodology, preview
-├── config/            # deals.yml registry
-├── tests/             # pytest (RWA logic, reconciliations)
-└── data/              # warehouse + generated CSVs (gitignored)
-```
 
 ## Architecture
 
