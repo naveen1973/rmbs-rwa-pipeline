@@ -40,8 +40,6 @@ Three-page dashboard connected to BigQuery via native connector:
 | **Time Series** | Performance over time | Pool Factor, CPR, Arrears 90+, Balance trends |
 
 ![Pool Analysis](docs/screenshots/01_pool_analysis.png)
-![Capital Structure](docs/screenshots/02_capital_structure.png)
-![Time Series](docs/screenshots/03_time_series.png)
 
 ## Architecture
 
